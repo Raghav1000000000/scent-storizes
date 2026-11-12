@@ -19,7 +19,17 @@ const cellPerfume = (r: number, c: number): Perfume => perfumes[mod(c * STEP + r
 
 type Cam = { x: number; y: number; z: number }
 /** The landing: walk up close to the wall, then step back and settle in the middle. */
-const INTRO = { from: 0.62, peak: 1.3, inMs: 1700, outMs: 1900 }
+/** Position on the zoom range: 0% = as close as you can get, 100% = the whole wall. */
+const zoomAtPct = (pct: number) => ZMAX * Math.pow(ZMIN / ZMAX, pct / 100)
+/** The landing: push in to 30%, pull back to 90%, come to rest at 55%. Each leg eases in and out. */
+const INTRO = [
+  { pct: 55, ms: 0 },
+  { pct: 30, ms: 1500 },
+  { pct: 90, ms: 2300 },
+  { pct: 55, ms: 1800 },
+]
+const INTRO_MS = INTRO.reduce((t, k) => t + k.ms, 0)
+const REST_Z = zoomAtPct(INTRO[INTRO.length - 1].pct)
 const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
 let savedCam: Cam | null = null // remembered between visits to the wall
 
@@ -29,10 +39,9 @@ export default function Library() {
   const navigate = useNavigate()
   const wallRef = useRef<HTMLDivElement>(null)
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight })
-  const homeZ = vp.w < 700 ? 0.62 : 0.95
 
-  const [cam, setCam] = useState<Cam>(() => savedCam ?? { x: CW * 0.5, y: CH * 0.5, z: homeZ * INTRO.from })
-  const target = useRef<Cam>(savedCam ?? { x: CW * 0.5, y: CH * 0.5, z: homeZ })
+  const [cam, setCam] = useState<Cam>(() => savedCam ?? { x: CW * 0.5, y: CH * 0.5, z: zoomAtPct(INTRO[0].pct) })
+  const target = useRef<Cam>(savedCam ?? { x: CW * 0.5, y: CH * 0.5, z: REST_Z })
   const camRef = useRef(cam)
   camRef.current = cam
   const raf = useRef(0)
@@ -82,26 +91,27 @@ export default function Library() {
     if (savedCam) {
       kick()
     } else {
-      // zoom in towards the shelves, then ease back out and come to rest
+      // push in, pull back, settle in the middle — interpolated on the zoom scale so every leg feels even
       const state = { cancel: false }
       intro.current = state
-      const zA = homeZ * INTRO.from
-      const zB = homeZ * INTRO.peak
       const t0 = performance.now()
       const step = (now: number) => {
         if (state.cancel) return
-        const t = now - t0
-        const z =
-          t < INTRO.inMs
-            ? zA + (zB - zA) * easeInOut(t / INTRO.inMs)
-            : t < INTRO.inMs + INTRO.outMs
-              ? zB + (homeZ - zB) * easeInOut((t - INTRO.inMs) / INTRO.outMs)
-              : homeZ
-        const c = { x: CW * 0.5, y: CH * 0.5, z }
+        let t = now - t0
+        let pct = INTRO[INTRO.length - 1].pct
+        for (let k = 1; k < INTRO.length; k++) {
+          if (t < INTRO[k].ms) {
+            pct = INTRO[k - 1].pct + (INTRO[k].pct - INTRO[k - 1].pct) * easeInOut(t / INTRO[k].ms)
+            break
+          }
+          t -= INTRO[k].ms
+        }
+        t = now - t0
+        const c = { x: CW * 0.5, y: CH * 0.5, z: zoomAtPct(pct) }
         camRef.current = c
         target.current = { ...c }
         setCam(c)
-        if (t < INTRO.inMs + INTRO.outMs) requestAnimationFrame(step)
+        if (t < INTRO_MS) requestAnimationFrame(step)
         else {
           intro.current = null
           savedCam = { ...c }
@@ -202,11 +212,11 @@ export default function Library() {
         kick()
       }
       window.setTimeout(() => {
-        if (cell) savedCam = { x: (cell.c + 0.5) * CW, y: (cell.r + 0.5) * CH, z: homeZ }
+        if (cell) savedCam = { x: (cell.c + 0.5) * CW, y: (cell.r + 0.5) * CH, z: REST_Z }
         navigate(`/perfume/${p.id}`)
       }, 520)
     },
-    [leaving, kick, navigate, homeZ],
+    [leaving, kick, navigate],
   )
 
   const onWallClick = (e: React.MouseEvent) => {
