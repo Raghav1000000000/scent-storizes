@@ -1,0 +1,21 @@
+{
+ "bottle": {
+  "src": "/game/bottle.png",
+  "mask": "/game/bottle-mask.png",
+  "w": 542,
+  "h": 900,
+  "footX": 270.9,
+  "footY": 877.7,
+  "nozzleX": 270.9,
+  "nozzleY": 33.5,
+  "innerTop": 309.0,
+  "innerBottom": 818.0
+ },
+ "books": {
+  "src": "/game/books.png",
+  "w": 900,
+  "h": 870,
+  "topY": 40.2,
+  "centerX": 450.0
+ }
+}

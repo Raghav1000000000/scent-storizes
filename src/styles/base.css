@@ -1,0 +1,147 @@
+:root {
+  /* grand library: limewashed walls, oak and walnut joinery, gilt details */
+  --bg: #fbfaf7;
+  --bg-2: #f4efe7;
+  --text: #241a12;
+  --text-soft: #54473b;
+  --muted: #877767;
+  --faint: rgba(70, 48, 26, 0.13);
+  --wood: #8a5a32; /* walnut */
+  --wood-deep: #5e3b1f;
+  --wood-light: #d2b48c; /* oak */
+  --oak: #b8895a;
+  --gilt: #a8823f;
+  --gilt-light: #d8bd7e;
+  --green: #2f4a3c; /* library leather / reading-lamp green */
+  --tex-wall: url('/textures/wall.jpg');
+  --tex-oak: url('/textures/oak.jpg');
+  --tex-walnut: url('/textures/walnut.jpg');
+  --tex-paper: url('/textures/paper.jpg');
+  --serif: 'Instrument Serif', 'Times New Roman', serif;
+  --sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow: 0 14px 36px rgba(92, 58, 28, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg) var(--tex-wall) repeat;
+  background-size: 640px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none; /* the display serif has one weight — never fake a bold */
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--wood);
+  color: #fff;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 25px;
+  letter-spacing: 0.005em;
+  color: var(--text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.wordmark i {
+  color: var(--wood);
+  font-style: italic;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wood);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(169, 113, 60, 0.4);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: transform 0.25s var(--ease), background 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--wood);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+/* primary button: a polished walnut plaque */
+.pill.gold {
+  background: var(--tex-walnut) center / 420px, var(--wood);
+  background-blend-mode: multiply;
+  color: #fbf3e4;
+  border-color: var(--wood-deep);
+  box-shadow: inset 0 1px 0 rgba(255, 235, 200, 0.25), 0 6px 16px rgba(60, 36, 16, 0.22);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.pill.gold:hover {
+  background-color: #9b6a3e;
+}
+
+:focus-visible {
+  outline: 2px solid var(--wood);
+  outline-offset: 3px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,443 @@
+/* The library wall: limewashed back panels, softly finished oak.
+   The wood is painted-in light and tone rather than a photograph, so the
+   real bottles are the only photographic things on the wall. */
+.wall {
+  --mx: 50vw;
+  --my: 50vh;
+  --oak-1: #dcc3a1;
+  --oak-2: #c9a77e;
+  --oak-3: #b18c63;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #f7f4ee;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  animation: fade-in 1.2s var(--ease) both;
+}
+.wall:active {
+  cursor: grabbing;
+}
+
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ---------- one slot on the shelf ---------- */
+.slot {
+  position: absolute;
+  width: 190px;
+  height: 270px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 30px;
+  cursor: pointer;
+  /* limewash back panel, with the soft shade a shelf casts on the wall below it */
+  background:
+    linear-gradient(180deg, rgba(120, 88, 56, 0.13) 0, rgba(120, 88, 56, 0.03) 14%, rgba(120, 88, 56, 0) 30%, rgba(120, 88, 56, 0) 82%, rgba(120, 88, 56, 0.05) 100%),
+    var(--tex-wall) 0 0 / 640px,
+    #f8f6f1;
+}
+/* upright every five slots */
+.slot.post::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  z-index: 3;
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 84, 50, 0.05) 0 1px, transparent 1px 9px),
+    linear-gradient(90deg, var(--oak-3), var(--oak-1) 38%, var(--oak-2) 70%, var(--oak-3));
+  box-shadow: 5px 0 14px -4px rgba(90, 60, 30, 0.18);
+}
+/* the plank: a soft oak tone with the faintest grain */
+.slot::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  z-index: 2;
+  background:
+    repeating-linear-gradient(90deg, rgba(120, 84, 50, 0.04) 0 1px, transparent 1px 13px),
+    linear-gradient(180deg, #eadac2 0, #e2cba9 6px, var(--oak-2) 7px, var(--oak-2) 18px, var(--oak-3) 30px);
+  box-shadow: 0 10px 18px -8px rgba(90, 60, 30, 0.28);
+}
+
+/* a faint pool of each perfume's colour */
+.niche {
+  position: absolute;
+  inset: 0 0 30px 0;
+  background: radial-gradient(60% 44% at 50% 100%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 72%);
+  opacity: 0.5;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.bottle {
+  position: relative;
+  z-index: 1;
+  max-width: 150px;
+  object-fit: contain;
+  object-position: bottom;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 3px 2px rgba(70, 44, 20, 0.28)) drop-shadow(8px 6px 10px rgba(70, 44, 20, 0.1));
+  /* only transform animates on hover: it runs on the compositor, so it stays smooth */
+  transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.3, 1), opacity 0.6s ease;
+  animation: settle 1s var(--ease) backwards;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* a quiet ribbon marks the three full stories */
+.slot.storied .niche::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 24px;
+  width: 9px;
+  height: 26px;
+  background: #9a4a3a;
+  opacity: 0.75;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+
+/* ---------- hover: drawn gently forward, like easing a book off the shelf ---------- */
+@media (hover: hover) {
+  .slot:hover .bottle {
+    transform: translateY(-6px) scale(1.035);
+  }
+  .slot:hover .niche {
+    opacity: 1;
+  }
+}
+
+/* ---------- search highlighting ---------- */
+.wall.searching .slot:not(.hit) .bottle {
+  opacity: 0.18;
+  filter: grayscale(1);
+}
+.wall.searching .slot:not(.hit) .niche {
+  opacity: 0;
+}
+.wall.searching .slot.hit .niche {
+  opacity: 1;
+}
+
+/* soft daylight that follows the cursor */
+.torch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(1200px circle at 50% 40%, transparent 40%, rgba(120, 90, 60, 0.12) 100%);
+}
+.wall::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease);
+}
+.wall.leaving::after {
+  opacity: 1;
+}
+
+/* ---------- the name, and only the name ---------- */
+.tip {
+  position: absolute;
+  z-index: 12;
+  transform: translate(-50%, calc(-100% - 10px));
+  padding: 3px 9px 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  box-shadow: 0 0 0 0.5px rgba(80, 56, 32, 0.12);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(42, 34, 27, 0.85);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tip-in 0.5s var(--ease) both;
+}
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 6px));
+  }
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  position: absolute;
+  z-index: 10;
+  cursor: default;
+}
+.hud.top {
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 28px 44px;
+  background: linear-gradient(180deg, rgba(247, 244, 238, 0.95), rgba(247, 244, 238, 0.6) 55%, transparent);
+  pointer-events: none;
+}
+.hud.top > * {
+  pointer-events: auto;
+}
+.hint {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hud.center {
+  left: 50%;
+  top: 50%;
+  width: min(520px, calc(100vw - 32px));
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.hud.center::before {
+  content: '';
+  position: absolute;
+  inset: -100px -170px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(247, 244, 238, 0.96), rgba(247, 244, 238, 0.82) 55%, transparent);
+  transition: opacity 0.9s var(--ease);
+}
+.wall.touched .hud.center:not(.on)::before {
+  opacity: 0;
+}
+.intro {
+  overflow: hidden;
+  max-height: 180px;
+  transition: max-height 0.9s var(--ease), opacity 0.7s var(--ease);
+}
+.wall.touched .intro {
+  max-height: 0;
+  opacity: 0;
+}
+.intro .eyebrow {
+  color: var(--muted);
+  letter-spacing: 0.26em;
+}
+.intro h1 {
+  margin: 8px 0 26px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(38px, 5.4vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+.intro h1 i {
+  color: var(--gilt);
+}
+
+/* search: a single ruled line, like a catalogue card */
+.search {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(58, 40, 22, 0.35);
+  color: var(--muted);
+  transition: border-color 0.6s var(--ease);
+}
+.search:focus-within {
+  border-color: var(--text);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--text);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 21px;
+}
+.search input::placeholder {
+  color: var(--muted);
+}
+.search .clear {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.results {
+  pointer-events: auto;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 6px;
+  background: rgba(251, 250, 246, 0.97);
+  border: 1px solid var(--faint);
+  box-shadow: 0 24px 50px -24px rgba(70, 44, 20, 0.35);
+  text-align: left;
+  animation: drop-in 0.5s var(--ease) both;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.results button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  text-align: left;
+  transition: background 0.4s var(--ease);
+}
+.results button.active {
+  background: rgba(169, 130, 80, 0.09);
+}
+.results .thumb {
+  width: 34px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.results .thumb img {
+  max-width: 34px;
+  max-height: 44px;
+  filter: drop-shadow(0 2px 2px rgba(70, 44, 20, 0.25));
+}
+.results .meta {
+  flex: 1;
+  min-width: 0;
+}
+.results b {
+  display: block;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.results small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.results .tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.results .empty {
+  padding: 14px 16px;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+}
+
+.hud.bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 60px 28px 26px;
+  background: linear-gradient(0deg, rgba(247, 244, 238, 0.92), transparent);
+  pointer-events: none;
+}
+.hud.bottom > * {
+  pointer-events: auto;
+}
+
+/* the way to the game: a gallery sign, not a button */
+.reading-room {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 26px 12px;
+  text-decoration: none;
+  color: var(--text);
+  border-top: 1px solid rgba(58, 40, 22, 0.25);
+  border-bottom: 1px solid rgba(58, 40, 22, 0.25);
+  background: rgba(247, 244, 238, 0.5);
+  backdrop-filter: blur(6px);
+  transition: background 0.6s var(--ease);
+}
+.reading-room small {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.reading-room span {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.1;
+}
+.reading-room i {
+  display: inline-block;
+  font-style: normal;
+  font-size: 16px;
+  color: var(--muted);
+  transition: transform 0.6s var(--ease);
+}
+.reading-room:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+.reading-room:hover i {
+  transform: translateX(4px);
+}
+
+@media (max-width: 700px) {
+  .hint {
+    display: none;
+  }
+  .hud.top {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .search input {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+# early design concept previews (not part of the site)
+public/concepts/
+.claude/
